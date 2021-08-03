@@ -28,7 +28,6 @@ class Vk_photo:
 
         all_photos = res['response']['items']
         data_json = []
-
         name = []
         for photo in all_photos:
             max_size = photo['sizes'][-1]
@@ -52,10 +51,6 @@ class Vk_photo:
 
 if __name__ == '__main__':
     Vk_photo().main()
-    # 5.131, 27492054, fcbd4b6a6194ff66ce955b1b518857b72f21e75ec303c926a96f68e9c717cc1cf554cdec874f0731cdcbb
+
     ya = yaDisk.YaDisk()
     ya.upload_file_to_disk('vk photo', 'profile photo')
-    # AQAAAAASgyKoAADLW5dsSKI8-0twlUieYLrlbgw
-
-    # print(os.path.abspath('profile photo'))
-
