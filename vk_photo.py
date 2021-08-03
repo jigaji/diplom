@@ -1,74 +1,61 @@
 import requests
-from pprint import pprint
 import json
 import datetime
-import os
 import yaDisk
+import os
 
+class Vk_photo:
 
-with open('token.txt', 'r') as file_object:
-    token = file_object.read().strip()
+    user_id = input('Введите ID пользователя VK: ')
+    token = input('Введите VK token: ')
+    url = 'https://api.vk.com/method/photos.get'
+    if not os.path.exists('profile photo'):
+        os.mkdir('profile photo')
+    else:
+        print('Папка с название profile photo уже существует')
+    def write_json(self, data):
+        with open('photos.json', 'w') as file:
+            json.dump(data, file, indent=2, ensure_ascii=False)
 
+    def main(self):
+        res = requests.get(self.url, params={'v': 5.131,
+                                             'access_token': self.token,
+                                             'owner_id': self.user_id,
+                                             'album_id': 'profile',
+                                             'extended': 1,
+                                             'photo_sizes': 1,
+                                             'count': 5}).json()
 
+        all_photos = res['response']['items']
+        data_json = []
 
-def write_json(photo_info):
-    try:
-        data = json.load(open('photos.json'))
-    except:
-        data = []
-    data.append(photo_info)
+        name = []
+        for photo in all_photos:
+            max_size = photo['sizes'][-1]
+            date = datetime.datetime.fromtimestamp(photo['date']).strftime('%d-%m-%Y-%H-%M-%S')
+            likes = photo['likes']['count']
+            if likes not in name:
+                name.append(likes)
+            else:
+                name.append(f'{likes}-{date}')
+            photo_data = {}
+            for x in name:
+                photo_data['file_name'] = f'{x}.jpg'
+                photo_data['size'] = max_size['type']
+            data_json.append(photo_data)
+            self.write_json(data_json)
+            download = requests.get(max_size['url'])
+            with open('profile photo/%s' % photo_data['file_name'], 'bw') as file:
+                file.write(download.content)
 
-    with open('photos.json', 'w') as file:
-        json.dump(data, file, indent=2)
-
-
-def max_photo(sizes):
-    if sizes['width'] <= sizes['height']:
-        return sizes['height']
-    elif sizes['width'] >= sizes['height']:
-        return sizes['width']
-
-
-def get_photo(version, user_id=None):
-    photos_url = 'https://api.vk.com/method/photos.get'
-    photos_params = {
-        'v': version,
-        'access_token': token,
-        'owner_id': user_id,
-        'album_id': 'profile',
-        'extended': 1,
-        'photo_sizes': 1,
-        'count': 5
-    }
-    res = requests.get(url=photos_url, params=photos_params).json()
-    return res
-
-
-def main(version, user_id=None):
-    os.mkdir('profile photo')
-    all_photos = get_photo(version, user_id)['response']['items']
-    filename = dict()
-    for photo in all_photos:
-        sizes = photo['sizes']
-        max_size = max(sizes, key=max_photo)
-        photo['sizes'] = max_size
-        date = datetime.datetime.fromtimestamp(photo['date'])
-        likes = photo['likes']['count']
-        filename['file_name'] = str(likes) + '.jpg'
-        photo_data = {**photo['sizes'], **filename}
-        information_json = dict()
-        information_json['file_name'] = photo_data['file_name']
-        information_json['type'] = photo_data['type']
-        write_json(information_json)
-        response = requests.get(photo_data['url'])
-
-        with open('profile photo/%s' % photo_data['file_name'], 'bw') as file:
-            file.write(response.content)
-    print('Фотографии профиля скачаны')
+        print('Фотографии профиля скачаны в папку profile photo')
 
 if __name__ == '__main__':
-    main('5.131', 1)
+    Vk_photo().main()
+    # 5.131, 27492054, fcbd4b6a6194ff66ce955b1b518857b72f21e75ec303c926a96f68e9c717cc1cf554cdec874f0731cdcbb
     ya = yaDisk.YaDisk()
     ya.upload_file_to_disk('vk photo', 'profile photo')
-    print(os.path.abspath('profile photo'))
+    # AQAAAAASgyKoAADLW5dsSKI8-0twlUieYLrlbgw
+
+    # print(os.path.abspath('profile photo'))
 

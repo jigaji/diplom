@@ -1,14 +1,20 @@
 import os
 import requests
 class YaDisk:
-
+    print('Предлагаем вам сделать резервную копию фотографий профиля пользователя VK в облачное хранилище Яндекс.Диск.'
+          ' Для этого вам нужно будет ввести следующие данные:')
     url = 'https://cloud-api.yandex.net/v1/disk/resources'
-    token = 'XXXXXXXXXXXXXXXXXXXXXXXXXX'
+    token = input('Введите YandexDisk API token: ')
     headers = {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': f'OAuth {token}'}
 
     def create_folder(self, disk_file_path):
         params = {"path": disk_file_path}
-        requests.put(self.url, params=params, headers=self.headers)
+        new_folder = requests.put(self.url, params=params, headers=self.headers)
+        new_folder.raise_for_status()
+        if new_folder.status_code == 201:
+            print('Папка успешно создана на Яндекс.Диск')
+        else:
+            print('Папка с таким именем уже существует на Яндекс.Диске')
 
     def upload_file(self, save_path):
         params = {"path": save_path, "overwrite": "false"}
@@ -28,3 +34,5 @@ class YaDisk:
         upload.raise_for_status()
         if upload.status_code == 201:
             print(f'Фотошрафии успешно загружены в папку {save_path} на Яндекс Диск')
+        else:
+            print('Ошибка при загрузке фотографий на Яндекс.Диск')
