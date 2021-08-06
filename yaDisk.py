@@ -33,6 +33,6 @@ class YaDisk:
                 upload = requests.put(res, data=open(os.path.join(load_path, img), 'rb'))
                 upload.raise_for_status()
                 if upload.status_code == 201:
-                    print(f'Фотошрафия успешно загружена в папку {save_path} на Яндекс Диск')
+                    print(f'Фотография успешно загружена в папку {save_path} на Яндекс Диск')
                 else:
                     print('Ошибка при загрузке фотографии на Яндекс.Диск')
