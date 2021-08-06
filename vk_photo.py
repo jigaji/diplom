@@ -4,10 +4,11 @@ import datetime
 import yaDisk
 import os
 
+user_id = input('Введите ID пользователя VK: ')
+token = input('Введите VK token: ')
+count = input('Введите количество фотографий для скачивания: ')
 class Vk_photo:
 
-    user_id = input('Введите ID пользователя VK: ')
-    token = input('Введите VK token: ')
     url = 'https://api.vk.com/method/photos.get'
     if not os.path.exists('profile photo'):
         os.mkdir('profile photo')
@@ -19,12 +20,12 @@ class Vk_photo:
 
     def main(self):
         res = requests.get(self.url, params={'v': 5.131,
-                                             'access_token': self.token,
-                                             'owner_id': self.user_id,
+                                             'access_token': token,
+                                             'owner_id': user_id,
                                              'album_id': 'profile',
                                              'extended': 1,
                                              'photo_sizes': 1,
-                                             'count': 5}).json()
+                                             'count': count}).json()
 
         all_photos = res['response']['items']
         data_json = []
@@ -42,15 +43,13 @@ class Vk_photo:
                 photo_data['file_name'] = f'{x}.jpg'
                 photo_data['size'] = max_size['type']
             data_json.append(photo_data)
-            self.write_json(data_json)
             download = requests.get(max_size['url'])
             with open('profile photo/%s' % photo_data['file_name'], 'bw') as file:
                 file.write(download.content)
-
+        self.write_json(data_json)
         print('Фотографии профиля скачаны в папку profile photo')
 
 if __name__ == '__main__':
     Vk_photo().main()
-
     ya = yaDisk.YaDisk()
     ya.upload_file_to_disk('vk photo', 'profile photo')
