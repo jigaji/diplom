@@ -4,9 +4,6 @@ import datetime
 import yaDisk
 import os
 
-user_id = input('Введите ID пользователя VK: ')
-token = input('Введите VK token: ')
-count = input('Введите количество фотографий для скачивания: ')
 class Vk_photo:
 
     url = 'https://api.vk.com/method/photos.get'
@@ -18,7 +15,7 @@ class Vk_photo:
         with open('photos.json', 'w') as file:
             json.dump(data, file, indent=2, ensure_ascii=False)
 
-    def main(self):
+    def main(self, user_id, token, count):
         res = requests.get(self.url, params={'v': 5.131,
                                              'access_token': token,
                                              'owner_id': user_id,
@@ -50,6 +47,9 @@ class Vk_photo:
         print('Фотографии профиля скачаны в папку profile photo')
 
 if __name__ == '__main__':
-    Vk_photo().main()
+    print(
+        'Предлагаем вам сделать резервную копию фотографий профиля пользователя VK в облачное хранилище Яндекс.Диск.\n'
+        'Для этого вам нужно будет ввести следующие данные:')
+    Vk_photo().main(input('Введите ID пользователя VK: '), input('Введите VK token: '), input('Введите количество фотографий для скачивания: '))
     ya = yaDisk.YaDisk()
-    ya.upload_file_to_disk('vk photo', 'profile photo')
+    ya.upload_file_to_disk('vk photo', 'profile photo', input('Введите YandexDisk API token: '))
